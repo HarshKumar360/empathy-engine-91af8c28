@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +60,27 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Custom sentiment colors
+        sentiment: {
+          positive: "hsl(var(--sentiment-positive))",
+          neutral: "hsl(var(--sentiment-neutral))",
+          warning: "hsl(var(--sentiment-warning))",
+          negative: "hsl(var(--sentiment-negative))",
+          escalated: "hsl(var(--sentiment-escalated))",
+        },
+        // Buddy colors
+        buddy: {
+          DEFAULT: "hsl(var(--buddy))",
+          foreground: "hsl(var(--buddy-foreground))",
+          muted: "hsl(var(--buddy-muted))",
+        },
+        // Chat bubble colors
+        chat: {
+          agent: "hsl(var(--chat-agent))",
+          customer: "hsl(var(--chat-customer))",
+          "agent-border": "hsl(var(--chat-agent-border))",
+          "customer-border": "hsl(var(--chat-customer-border))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,20 +89,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
