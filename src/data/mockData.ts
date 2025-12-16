@@ -1,4 +1,8 @@
-import { Conversation, CustomerInfo } from '@/types/chat';
+import { Conversation, CustomerInfo, EscalationInfo, ManagerNotification } from '@/types/chat';
+
+const defaultEscalation: EscalationInfo = {
+  status: 'none',
+};
 
 export const mockConversations: Conversation[] = [
   {
@@ -74,6 +78,8 @@ export const mockConversations: Conversation[] = [
     lastMessageTime: new Date(Date.now() - 1000 * 60 * 8),
     isActive: true,
     unreadCount: 0,
+    priority: 'high',
+    escalation: defaultEscalation,
   },
   {
     id: '2',
@@ -108,6 +114,8 @@ export const mockConversations: Conversation[] = [
     lastMessageTime: new Date(Date.now() - 1000 * 60 * 5),
     isActive: true,
     unreadCount: 1,
+    priority: 'low',
+    escalation: defaultEscalation,
   },
   {
     id: '3',
@@ -151,6 +159,8 @@ export const mockConversations: Conversation[] = [
     lastMessageTime: new Date(Date.now() - 1000 * 60 * 25),
     isActive: false,
     unreadCount: 0,
+    priority: 'low',
+    escalation: defaultEscalation,
   },
   {
     id: '4',
@@ -191,6 +201,20 @@ export const mockConversations: Conversation[] = [
     lastMessageTime: new Date(Date.now() - 1000 * 60 * 2),
     isActive: true,
     unreadCount: 1,
+    priority: 'urgent',
+    escalation: defaultEscalation,
+  },
+];
+
+export const mockNotifications: ManagerNotification[] = [
+  {
+    id: 'notif-1',
+    conversationId: '4',
+    customerName: 'David Kim',
+    reason: 'Customer demanding manager attention - VIP account with escalation history',
+    priority: 'urgent',
+    timestamp: new Date(Date.now() - 1000 * 60 * 2),
+    isRead: false,
   },
 ];
 

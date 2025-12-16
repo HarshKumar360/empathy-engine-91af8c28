@@ -1,6 +1,8 @@
-import { BuddySuggestion, SentimentLevel } from '@/types/chat';
+import { BuddySuggestion, SentimentLevel, EscalationInfo, PriorityLevel } from '@/types/chat';
 import { cn } from '@/lib/utils';
 import { SentimentTimeline } from './SentimentTimeline';
+import { SentimentChart } from './SentimentChart';
+import { EscalationPanel } from './EscalationPanel';
 import { Sparkles, AlertTriangle, PartyPopper, Heart, Zap } from 'lucide-react';
 
 interface BuddySidebarProps {
@@ -8,6 +10,11 @@ interface BuddySidebarProps {
   sentimentHistory: { timestamp: Date; level: SentimentLevel }[];
   onQuickReply: (reply: string) => void;
   currentSentiment: SentimentLevel;
+  customerName: string;
+  escalation: EscalationInfo;
+  priority: PriorityLevel;
+  onEscalate: (reason: string, priority: PriorityLevel) => void;
+  onResolveEscalation: () => void;
 }
 
 const typeConfig = {
@@ -33,10 +40,17 @@ const typeConfig = {
   },
 };
 
-export function BuddySidebar({ suggestions, sentimentHistory, onQuickReply, currentSentiment }: BuddySidebarProps) {
-  // Get the latest suggestion
-  const latestSuggestion = suggestions[suggestions.length - 1];
-
+export function BuddySidebar({
+  suggestions,
+  sentimentHistory,
+  onQuickReply,
+  currentSentiment,
+  customerName,
+  escalation,
+  priority,
+  onEscalate,
+  onResolveEscalation,
+}: BuddySidebarProps) {
   return (
     <div className="h-full flex flex-col bg-card border-l border-border">
       {/* Header */}
@@ -53,8 +67,20 @@ export function BuddySidebar({ suggestions, sentimentHistory, onQuickReply, curr
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Sentiment Chart */}
+        <SentimentChart history={sentimentHistory} />
+
         {/* Sentiment Timeline */}
         <SentimentTimeline history={sentimentHistory} />
+
+        {/* Escalation Panel */}
+        <EscalationPanel
+          escalation={escalation}
+          customerName={customerName}
+          priority={priority}
+          onEscalate={onEscalate}
+          onResolve={onResolveEscalation}
+        />
 
         {/* Suggestions */}
         <div className="space-y-3">

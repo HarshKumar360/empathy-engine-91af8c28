@@ -1,4 +1,6 @@
 export type SentimentLevel = 'positive' | 'neutral' | 'warning' | 'negative' | 'escalated';
+export type PriorityLevel = 'low' | 'medium' | 'high' | 'urgent';
+export type EscalationStatus = 'none' | 'pending' | 'escalated' | 'resolved';
 
 export interface Message {
   id: string;
@@ -16,6 +18,15 @@ export interface BuddySuggestion {
   timestamp: Date;
 }
 
+export interface EscalationInfo {
+  status: EscalationStatus;
+  escalatedAt?: Date;
+  escalatedBy?: string;
+  managerAssigned?: string;
+  reason?: string;
+  resolvedAt?: Date;
+}
+
 export interface Conversation {
   id: string;
   customerName: string;
@@ -28,6 +39,8 @@ export interface Conversation {
   lastMessageTime: Date;
   isActive: boolean;
   unreadCount: number;
+  priority: PriorityLevel;
+  escalation: EscalationInfo;
 }
 
 export interface CustomerInfo {
@@ -37,4 +50,14 @@ export interface CustomerInfo {
   previousTickets: number;
   memberSince: string;
   tags: string[];
+}
+
+export interface ManagerNotification {
+  id: string;
+  conversationId: string;
+  customerName: string;
+  reason: string;
+  priority: PriorityLevel;
+  timestamp: Date;
+  isRead: boolean;
 }
