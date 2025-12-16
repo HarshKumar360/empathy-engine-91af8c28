@@ -3,19 +3,29 @@ import { DashboardHeader } from '@/components/DashboardHeader';
 import { ChatList } from '@/components/ChatList';
 import { ChatWindow } from '@/components/ChatWindow';
 import { EmptyState } from '@/components/EmptyState';
-import { mockConversations, mockCustomerInfo } from '@/data/mockData';
-import { Conversation, Message, SentimentLevel } from '@/types/chat';
+import { PriorityQueuePanel } from '@/components/PriorityQueuePanel';
+import { mockConversations, mockCustomerInfo, mockNotifications } from '@/data/mockData';
+import { Conversation, Message, SentimentLevel, PriorityLevel, ManagerNotification } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
 import { useSentimentAnalysis } from '@/hooks/useSentimentAnalysis';
 
 const Index = () => {
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
+  const [notifications, setNotifications] = useState<ManagerNotification[]>(mockNotifications);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const { toast } = useToast();
   const { analyzeSentiment, createBuddySuggestion, isAnalyzing } = useSentimentAnalysis();
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
   const activeCustomer = activeConversationId ? mockCustomerInfo[activeConversationId] : null;
+
+  // Initialize theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
 
   // Analyze sentiment for the last customer message when conversation changes
   useEffect(() => {
@@ -36,22 +46,27 @@ const Index = () => {
     if (result) {
       const newSuggestion = createBuddySuggestion(result);
       
+      // Update priority based on sentiment
+      let newPriority: PriorityLevel = conversation.priority;
+      if (result.sentiment === 'escalated') newPriority = 'urgent';
+      else if (result.sentiment === 'negative') newPriority = 'high';
+      else if (result.sentiment === 'warning') newPriority = 'medium';
+      
       setConversations(prev =>
         prev.map(conv => {
           if (conv.id !== conversation.id) return conv;
           
-          // Update message sentiment
           const updatedMessages = conv.messages.map(m =>
             m.id === message.id ? { ...m, sentiment: result.sentiment } : m
           );
           
-          // Add to sentiment history if changed
           const shouldAddToHistory = conv.currentSentiment !== result.sentiment;
           
           return {
             ...conv,
             messages: updatedMessages,
             currentSentiment: result.sentiment,
+            priority: newPriority,
             sentimentHistory: shouldAddToHistory 
               ? [...conv.sentimentHistory, { timestamp: new Date(), level: result.sentiment }]
               : conv.sentimentHistory,
@@ -60,7 +75,6 @@ const Index = () => {
         })
       );
 
-      // Show celebration toast when sentiment improves
       if (result.suggestionType === 'celebration') {
         toast({
           title: "Customer sentiment improving! 🎉",
@@ -98,7 +112,6 @@ const Index = () => {
       description: isAnalyzing ? "Analyzing sentiment..." : "Sentiment Buddy is ready.",
     });
 
-    // Simulate customer response after a delay (for demo purposes)
     setTimeout(() => {
       simulateCustomerResponse(activeConversationId);
     }, 2000);
@@ -135,13 +148,16 @@ const Index = () => {
       })
     );
 
-    // Analyze the new customer message
     const conversation = conversations.find(c => c.id === conversationId);
     if (conversation) {
       const result = await analyzeSentiment(randomResponse, [...conversation.messages, customerMessage]);
       
       if (result) {
         const newSuggestion = createBuddySuggestion(result);
+        
+        let newPriority: PriorityLevel = conversation.priority;
+        if (result.sentiment === 'escalated') newPriority = 'urgent';
+        else if (result.sentiment === 'negative') newPriority = 'high';
         
         setConversations(prev =>
           prev.map(conv => {
@@ -155,6 +171,7 @@ const Index = () => {
               ...conv,
               messages: updatedMessages,
               currentSentiment: result.sentiment,
+              priority: newPriority,
               sentimentHistory: [...conv.sentimentHistory, { timestamp: new Date(), level: result.sentiment }],
               buddySuggestions: [...conv.buddySuggestions, newSuggestion],
             };
@@ -179,8 +196,6 @@ const Index = () => {
 
   const handleSelectConversation = (id: string) => {
     setActiveConversationId(id);
-    
-    // Clear unread count
     setConversations(prev =>
       prev.map(conv =>
         conv.id === id ? { ...conv, unreadCount: 0 } : conv
@@ -188,8 +203,81 @@ const Index = () => {
     );
   };
 
+  const handleEscalate = (reason: string, priority: PriorityLevel) => {
+    if (!activeConversationId || !activeConversation) return;
+
+    const newNotification: ManagerNotification = {
+      id: `notif-${Date.now()}`,
+      conversationId: activeConversationId,
+      customerName: activeConversation.customerName,
+      reason,
+      priority,
+      timestamp: new Date(),
+      isRead: false,
+    };
+
+    setNotifications(prev => [newNotification, ...prev]);
+    
+    setConversations(prev =>
+      prev.map(conv => {
+        if (conv.id !== activeConversationId) return conv;
+        return {
+          ...conv,
+          priority,
+          escalation: {
+            status: 'escalated',
+            escalatedAt: new Date(),
+            escalatedBy: 'Agent',
+            managerAssigned: 'Manager Jane',
+            reason,
+          },
+        };
+      })
+    );
+
+    toast({
+      title: "Escalation sent 📨",
+      description: "Manager has been notified and will assist shortly.",
+    });
+  };
+
+  const handleResolveEscalation = () => {
+    if (!activeConversationId) return;
+
+    setConversations(prev =>
+      prev.map(conv => {
+        if (conv.id !== activeConversationId) return conv;
+        return {
+          ...conv,
+          escalation: {
+            ...conv.escalation,
+            status: 'resolved',
+            resolvedAt: new Date(),
+          },
+        };
+      })
+    );
+
+    toast({
+      title: "Escalation resolved ✅",
+      description: "Great job handling this situation!",
+    });
+  };
+
+  const handleMarkNotificationRead = (id: string) => {
+    setNotifications(prev =>
+      prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
+    );
+  };
+
+  const handleDismissNotification = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
   const activeChats = conversations.filter(c => c.isActive).length;
   const resolvedCount = conversations.filter(c => !c.isActive).length;
+  const urgentCount = conversations.filter(c => c.priority === 'urgent' && c.isActive).length;
+  const escalatedCount = conversations.filter(c => c.escalation.status === 'escalated').length;
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -197,14 +285,26 @@ const Index = () => {
         activeChats={activeChats}
         totalResolved={resolvedCount}
         avgSentiment="😊"
+        urgentCount={urgentCount}
+        escalatedCount={escalatedCount}
+        notifications={notifications}
+        onMarkNotificationRead={handleMarkNotificationRead}
+        onViewConversation={handleSelectConversation}
+        onDismissNotification={handleDismissNotification}
       />
       
       <div className="flex-1 flex overflow-hidden">
         {/* Chat List Sidebar */}
-        <aside className="w-80 bg-card border-r border-border shrink-0">
-          <ChatList
+        <aside className="w-80 bg-card border-r border-border shrink-0 flex flex-col">
+          <div className="flex-1 overflow-hidden">
+            <ChatList
+              conversations={conversations}
+              activeConversationId={activeConversationId}
+              onSelectConversation={handleSelectConversation}
+            />
+          </div>
+          <PriorityQueuePanel
             conversations={conversations}
-            activeConversationId={activeConversationId}
             onSelectConversation={handleSelectConversation}
           />
         </aside>
@@ -215,6 +315,8 @@ const Index = () => {
             conversation={activeConversation}
             customer={activeCustomer}
             onSendMessage={handleSendMessage}
+            onEscalate={handleEscalate}
+            onResolveEscalation={handleResolveEscalation}
           />
         ) : (
           <EmptyState />

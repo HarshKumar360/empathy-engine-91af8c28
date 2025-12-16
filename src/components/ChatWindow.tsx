@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Conversation, CustomerInfo, Message } from '@/types/chat';
+import { Conversation, CustomerInfo, PriorityLevel } from '@/types/chat';
 import { ChatMessage } from './ChatMessage';
 import { CustomerInfoPanel } from './CustomerInfoPanel';
 import { BuddySidebar } from './BuddySidebar';
@@ -10,9 +10,17 @@ interface ChatWindowProps {
   conversation: Conversation;
   customer: CustomerInfo;
   onSendMessage: (message: string) => void;
+  onEscalate: (reason: string, priority: PriorityLevel) => void;
+  onResolveEscalation: () => void;
 }
 
-export function ChatWindow({ conversation, customer, onSendMessage }: ChatWindowProps) {
+export function ChatWindow({
+  conversation,
+  customer,
+  onSendMessage,
+  onEscalate,
+  onResolveEscalation,
+}: ChatWindowProps) {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -114,6 +122,11 @@ export function ChatWindow({ conversation, customer, onSendMessage }: ChatWindow
           sentimentHistory={conversation.sentimentHistory}
           onQuickReply={handleQuickReply}
           currentSentiment={conversation.currentSentiment}
+          customerName={conversation.customerName}
+          escalation={conversation.escalation}
+          priority={conversation.priority}
+          onEscalate={onEscalate}
+          onResolveEscalation={onResolveEscalation}
         />
       </div>
     </div>
