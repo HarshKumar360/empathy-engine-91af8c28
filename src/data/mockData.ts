@@ -1,4 +1,4 @@
-import { Conversation, CustomerInfo, EscalationInfo, ManagerNotification } from '@/types/chat';
+import { Conversation, CustomerInfo, EscalationInfo, ManagerNotification, InternalNote } from '@/types/chat';
 
 const defaultEscalation: EscalationInfo = {
   status: 'none',
@@ -498,6 +498,31 @@ export const mockCustomerInfo: Record<string, CustomerInfo> = {
     previousTickets: 3,
     memberSince: 'Mar 2023',
     tags: ['Enterprise', 'Storage', 'Priority', 'Resolved'],
+    internalNotes: [
+      {
+        id: 'note-1-1',
+        content: 'Customer had 3 previous tickets about the same storage array. This time we provided expedited replacement drives and a 15% credit. Should be fully resolved now.',
+        authorName: 'Alex Thompson',
+        authorInitials: 'AT',
+        timestamp: new Date(Date.now() - 1000 * 60 * 22),
+        isPinned: true,
+      },
+      {
+        id: 'note-1-2',
+        content: 'VIP account - TechCorp is a $50k/year customer. Always prioritize their tickets.',
+        authorName: 'Jennifer Moore',
+        authorInitials: 'JM',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
+        isPinned: true,
+      },
+      {
+        id: 'note-1-3',
+        content: 'Sarah prefers technical explanations over simplified answers. Very knowledgeable about infrastructure.',
+        authorName: 'Mike Chen',
+        authorInitials: 'MC',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30),
+      },
+    ],
   },
   '2': {
     name: 'Marcus Johnson',
@@ -506,6 +531,15 @@ export const mockCustomerInfo: Record<string, CustomerInfo> = {
     previousTickets: 1,
     memberSince: 'Jan 2024',
     tags: ['Pro Plan', 'Upgraded'],
+    internalNotes: [
+      {
+        id: 'note-2-1',
+        content: 'Successfully upgraded from Starter to Pro. Very easy to work with - quick responses and appreciates efficient service.',
+        authorName: 'Alex Thompson',
+        authorInitials: 'AT',
+        timestamp: new Date(Date.now() - 1000 * 60 * 10),
+      },
+    ],
   },
   '3': {
     name: 'Emily Rodriguez',
@@ -514,6 +548,23 @@ export const mockCustomerInfo: Record<string, CustomerInfo> = {
     previousTickets: 1,
     memberSince: 'Sep 2023',
     tags: ['Pro Plan', 'Happy Customer', 'Brand Advocate'],
+    internalNotes: [
+      {
+        id: 'note-3-1',
+        content: 'Customer is interested in being featured in a blog spotlight. Marketing team should follow up via email.',
+        authorName: 'Alex Thompson',
+        authorInitials: 'AT',
+        timestamp: new Date(Date.now() - 1000 * 60 * 23),
+        isPinned: true,
+      },
+      {
+        id: 'note-3-2',
+        content: 'Emily shared that they reduced client onboarding from 2 hours to 15 minutes using our workflow builder. Great testimonial material!',
+        authorName: 'Alex Thompson',
+        authorInitials: 'AT',
+        timestamp: new Date(Date.now() - 1000 * 60 * 25),
+      },
+    ],
   },
   '4': {
     name: 'David Kim',
@@ -522,6 +573,31 @@ export const mockCustomerInfo: Record<string, CustomerInfo> = {
     previousTickets: 6,
     memberSince: 'Jun 2022',
     tags: ['Enterprise', 'VIP', 'Dedicated TAM'],
+    internalNotes: [
+      {
+        id: 'note-4-1',
+        content: 'CRITICAL: Customer experienced 6-hour outage. Applied $5,000 credit and assigned dedicated TAM. Jennifer scheduled follow-up call for tomorrow 10 AM.',
+        authorName: 'Alex Thompson',
+        authorInitials: 'AT',
+        timestamp: new Date(Date.now() - 1000 * 60 * 27),
+        isPinned: true,
+      },
+      {
+        id: 'note-4-2',
+        content: 'Post-mortem report due in 48 hours. Infrastructure team is preparing root cause analysis.',
+        authorName: 'Jennifer Moore',
+        authorInitials: 'JM',
+        timestamp: new Date(Date.now() - 1000 * 60 * 30),
+        isPinned: true,
+      },
+      {
+        id: 'note-4-3',
+        content: 'David can be demanding but is fair once issues are resolved. Key is to take ownership and provide concrete action steps.',
+        authorName: 'Sarah Williams',
+        authorInitials: 'SW',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60),
+      },
+    ],
   },
   '5': {
     name: 'Amanda Foster',
@@ -530,6 +606,15 @@ export const mockCustomerInfo: Record<string, CustomerInfo> = {
     previousTickets: 0,
     memberSince: 'Dec 2024',
     tags: ['New Customer', 'Exchange Request'],
+    internalNotes: [
+      {
+        id: 'note-5-1',
+        content: 'First-time customer with size exchange request. Being very polite and easy to work with. Consider offering expedited shipping as goodwill.',
+        authorName: 'Current Agent',
+        authorInitials: 'CA',
+        timestamp: new Date(Date.now() - 1000 * 60 * 5),
+      },
+    ],
   },
   '6': {
     name: 'Robert Chen',
@@ -538,5 +623,22 @@ export const mockCustomerInfo: Record<string, CustomerInfo> = {
     previousTickets: 2,
     memberSince: 'Oct 2024',
     tags: ['Developer', 'API User', 'Technical'],
+    internalNotes: [
+      {
+        id: 'note-6-1',
+        content: 'Technical user - 401 errors likely related to API key format or permissions. Check if using production vs test key.',
+        authorName: 'Current Agent',
+        authorInitials: 'CA',
+        timestamp: new Date(Date.now() - 1000 * 60 * 2),
+      },
+      {
+        id: 'note-6-2',
+        content: 'Previous tickets were also API-related. Customer knows their stuff - give technical responses, not basic troubleshooting.',
+        authorName: 'Mike Chen',
+        authorInitials: 'MC',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15),
+        isPinned: true,
+      },
+    ],
   },
 };

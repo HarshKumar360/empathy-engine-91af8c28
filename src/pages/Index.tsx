@@ -5,19 +5,20 @@ import { ChatWindow } from '@/components/ChatWindow';
 import { EmptyState } from '@/components/EmptyState';
 import { PriorityQueuePanel } from '@/components/PriorityQueuePanel';
 import { mockConversations, mockCustomerInfo, mockNotifications } from '@/data/mockData';
-import { Conversation, Message, SentimentLevel, PriorityLevel, ManagerNotification } from '@/types/chat';
+import { Conversation, Message, SentimentLevel, PriorityLevel, ManagerNotification, CustomerInfo, InternalNote } from '@/types/chat';
 import { useToast } from '@/hooks/use-toast';
 import { useSentimentAnalysis } from '@/hooks/useSentimentAnalysis';
 
 const Index = () => {
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
+  const [customerInfo, setCustomerInfo] = useState<Record<string, CustomerInfo>>(mockCustomerInfo);
   const [notifications, setNotifications] = useState<ManagerNotification[]>(mockNotifications);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const { toast } = useToast();
   const { analyzeSentiment, createBuddySuggestion, isAnalyzing } = useSentimentAnalysis();
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
-  const activeCustomer = activeConversationId ? mockCustomerInfo[activeConversationId] : null;
+  const activeCustomer = activeConversationId ? customerInfo[activeConversationId] : null;
 
   // Initialize theme from localStorage
   useEffect(() => {
@@ -264,6 +265,62 @@ const Index = () => {
     });
   };
 
+  const handleAddNote = (content: string) => {
+    if (!activeConversationId) return;
+
+    const newNote: InternalNote = {
+      id: `note-${Date.now()}`,
+      content,
+      authorName: 'Current Agent',
+      authorInitials: 'CA',
+      timestamp: new Date(),
+    };
+
+    setCustomerInfo(prev => ({
+      ...prev,
+      [activeConversationId]: {
+        ...prev[activeConversationId],
+        internalNotes: [...(prev[activeConversationId].internalNotes || []), newNote],
+      },
+    }));
+
+    toast({
+      title: "Note added 📝",
+      description: "Your internal note has been saved.",
+    });
+  };
+
+  const handleDeleteNote = (noteId: string) => {
+    if (!activeConversationId) return;
+
+    setCustomerInfo(prev => ({
+      ...prev,
+      [activeConversationId]: {
+        ...prev[activeConversationId],
+        internalNotes: (prev[activeConversationId].internalNotes || []).filter(n => n.id !== noteId),
+      },
+    }));
+
+    toast({
+      title: "Note deleted",
+      description: "The internal note has been removed.",
+    });
+  };
+
+  const handleTogglePinNote = (noteId: string) => {
+    if (!activeConversationId) return;
+
+    setCustomerInfo(prev => ({
+      ...prev,
+      [activeConversationId]: {
+        ...prev[activeConversationId],
+        internalNotes: (prev[activeConversationId].internalNotes || []).map(n =>
+          n.id === noteId ? { ...n, isPinned: !n.isPinned } : n
+        ),
+      },
+    }));
+  };
+
   const handleMarkNotificationRead = (id: string) => {
     setNotifications(prev =>
       prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
@@ -317,6 +374,9 @@ const Index = () => {
             onSendMessage={handleSendMessage}
             onEscalate={handleEscalate}
             onResolveEscalation={handleResolveEscalation}
+            onAddNote={handleAddNote}
+            onDeleteNote={handleDeleteNote}
+            onTogglePinNote={handleTogglePinNote}
           />
         ) : (
           <EmptyState />
