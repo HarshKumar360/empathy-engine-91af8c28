@@ -43,6 +43,15 @@ export interface Conversation {
   escalation: EscalationInfo;
 }
 
+export interface InternalNote {
+  id: string;
+  content: string;
+  authorName: string;
+  authorInitials: string;
+  timestamp: Date;
+  isPinned?: boolean;
+}
+
 export interface CustomerInfo {
   name: string;
   email: string;
@@ -50,6 +59,7 @@ export interface CustomerInfo {
   previousTickets: number;
   memberSince: string;
   tags: string[];
+  internalNotes?: InternalNote[];
 }
 
 export interface ManagerNotification {

@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { Conversation, CustomerInfo, PriorityLevel } from '@/types/chat';
+import { Conversation, CustomerInfo, PriorityLevel, InternalNote } from '@/types/chat';
 import { ChatMessage } from './ChatMessage';
 import { CustomerInfoPanel } from './CustomerInfoPanel';
 import { BuddySidebar } from './BuddySidebar';
 import { SentimentBadge } from './SentimentBadge';
 import { CannedResponsesPanel } from './CannedResponsesPanel';
+import { InternalNotesPanel } from './InternalNotesPanel';
 import { Send, Paperclip, Smile, MessageSquareText } from 'lucide-react';
 
 interface ChatWindowProps {
@@ -13,6 +14,9 @@ interface ChatWindowProps {
   onSendMessage: (message: string) => void;
   onEscalate: (reason: string, priority: PriorityLevel) => void;
   onResolveEscalation: () => void;
+  onAddNote: (content: string) => void;
+  onDeleteNote: (noteId: string) => void;
+  onTogglePinNote: (noteId: string) => void;
 }
 
 export function ChatWindow({
@@ -21,6 +25,9 @@ export function ChatWindow({
   onSendMessage,
   onEscalate,
   onResolveEscalation,
+  onAddNote,
+  onDeleteNote,
+  onTogglePinNote,
 }: ChatWindowProps) {
   const [inputValue, setInputValue] = useState('');
   const [showCannedResponses, setShowCannedResponses] = useState(false);
@@ -58,6 +65,16 @@ export function ChatWindow({
       <div className="flex-1 flex flex-col min-w-0">
         {/* Customer Info Header */}
         <CustomerInfoPanel customer={customer} />
+
+        {/* Internal Notes */}
+        <div className="px-4 pt-4">
+          <InternalNotesPanel
+            notes={customer.internalNotes || []}
+            onAddNote={onAddNote}
+            onDeleteNote={onDeleteNote}
+            onTogglePin={onTogglePinNote}
+          />
+        </div>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-background">
