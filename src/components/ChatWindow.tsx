@@ -4,7 +4,8 @@ import { ChatMessage } from './ChatMessage';
 import { CustomerInfoPanel } from './CustomerInfoPanel';
 import { BuddySidebar } from './BuddySidebar';
 import { SentimentBadge } from './SentimentBadge';
-import { Send, Paperclip, Smile } from 'lucide-react';
+import { CannedResponsesPanel } from './CannedResponsesPanel';
+import { Send, Paperclip, Smile, MessageSquareText } from 'lucide-react';
 
 interface ChatWindowProps {
   conversation: Conversation;
@@ -22,6 +23,7 @@ export function ChatWindow({
   onResolveEscalation,
 }: ChatWindowProps) {
   const [inputValue, setInputValue] = useState('');
+  const [showCannedResponses, setShowCannedResponses] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -39,6 +41,7 @@ export function ChatWindow({
 
   const handleQuickReply = (reply: string) => {
     setInputValue(reply);
+    setShowCannedResponses(false);
     inputRef.current?.focus();
   };
 
@@ -69,13 +72,34 @@ export function ChatWindow({
         </div>
 
         {/* Input Area */}
-        <form onSubmit={handleSubmit} className="p-4 border-t border-border bg-card">
+        <form onSubmit={handleSubmit} className="p-4 border-t border-border bg-card relative">
+          {/* Canned Responses Panel */}
+          <CannedResponsesPanel
+            isOpen={showCannedResponses}
+            onClose={() => setShowCannedResponses(false)}
+            onSelect={handleQuickReply}
+            currentSentiment={conversation.currentSentiment}
+          />
+
           <div className="flex items-end gap-3">
             <button
               type="button"
               className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors"
             >
               <Paperclip className="w-5 h-5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowCannedResponses(!showCannedResponses)}
+              className={`p-2 rounded-lg transition-colors ${
+                showCannedResponses 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+              }`}
+              title="Canned Responses"
+            >
+              <MessageSquareText className="w-5 h-5" />
             </button>
             
             <div className="flex-1 relative">
